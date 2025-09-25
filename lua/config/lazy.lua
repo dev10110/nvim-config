@@ -91,18 +91,6 @@ require("lazy").setup({
 		-- Telescope (for references, symbols, etc.)
 		{ "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim" } },
 
-		-- LSP + Mason
-		{ "neovim/nvim-lspconfig" },
-		{ "williamboman/mason.nvim", build = ":MasonUpdate" },
-		{ "williamboman/mason-lspconfig.nvim" },
-
-		-- Autocomplete
-		{ "hrsh7th/nvim-cmp" },
-		{ "hrsh7th/cmp-nvim-lsp" },
-		{ "hrsh7th/cmp-buffer" },
-		{ "hrsh7th/cmp-path" },
-		{ "L3MON4D3/LuaSnip" },
-		{ "saadparwaiz1/cmp_luasnip" },
 	},
 	-- Configure any other settings here. See the documentation for more details.
 	-- colorscheme that will be used when installing plugins.
@@ -110,3 +98,5 @@ require("lazy").setup({
 	-- automatically check for plugin updates
 	checker = { enabled = true },
 })
+
+
