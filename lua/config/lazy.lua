@@ -34,18 +34,18 @@ require("lazy").setup({
 			end,
 		},
 
-		-- fuzzy finder
-		{
-			"https://github.com/junegunn/fzf.vim",
-			dependencies = {
-				"https://github.com/junegunn/fzf",
-			},
-			keys = {
-				{ "<Leader><Leader>", "<Cmd>Files<CR>", desc = "Find files" },
-				{ "<Leader>,", "<Cmd>Buffers<CR>", desc = "Find buffers" },
-				{ "<Leader>/", "<Cmd>Rg<CR>", desc = "Search project" },
-			},
-		},
+		-- -- fuzzy finder
+		-- {
+		-- 	"https://github.com/junegunn/fzf.vim",
+		-- 	dependencies = {
+		-- 		"https://github.com/junegunn/fzf",
+		-- 	},
+		-- 	keys = {
+		-- 		{ "<Leader><Leader>", "<Cmd>Files<CR>", desc = "Find files" },
+		-- 		{ "<Leader>,", "<Cmd>Buffers<CR>", desc = "Find buffers" },
+		-- 		{ "<Leader>/", "<Cmd>Rg<CR>", desc = "Search project" },
+		-- 	},
+		-- },
 		-- oil
 		{
 			"https://github.com/stevearc/oil.nvim",
@@ -81,11 +81,13 @@ require("lazy").setup({
 				require("nvim-autopairs").setup()
 			end,
 		},
+
 		-- vim-lastplace
 		{
 			"https://github.com/farmergreg/vim-lastplace",
 			event = "BufReadPost",
 		},
+
 		-- status line
 		{
 			"https://github.com/nvim-lualine/lualine.nvim",
@@ -94,6 +96,7 @@ require("lazy").setup({
 				require("lualine").setup()
 			end,
 		},
+
 		-- julia-vim
 		{
 			"JuliaEditorSupport/julia-vim",
@@ -107,11 +110,18 @@ require("lazy").setup({
 			"nvim-telescope/telescope.nvim",
 			dependencies = { "nvim-lua/plenary.nvim" },
 			config = function()
-				require("telescope").setup({
+				local telescope = require("telescope")
+				local tb = require("telescope.builtin")
+
+				telescope.setup({
 					defaults = {
-						file_ignore_patterns = { "%.cache/" },
+						file_ignore_patterns = { ".cache" },
 					},
 				})
+
+				-- keymaps
+				vim.keymap.set("n", "<leader><leader>", tb.find_files, { desc = "Find files" })
+				vim.keymap.set("n", "<leader>/", tb.live_grep, { desc = "Live grep" })
 			end,
 		},
 
@@ -123,9 +133,7 @@ require("lazy").setup({
 		{ "hrsh7th/nvim-cmp" },
 
 		--vim.abolish (helps substitute with case-sensitivity)
-		{
-			"tpope/vim-abolish",
-		},
+		{ "tpope/vim-abolish" },
 	},
 	-- Configure any other settings here. See the documentation for more details.
 	-- colorscheme that will be used when installing plugins.
