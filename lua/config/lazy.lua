@@ -51,10 +51,10 @@ require("lazy").setup({
 			"https://github.com/stevearc/oil.nvim",
 			config = function()
 				require("oil").setup({
-          view_options = {
-            show_hidden = true,
-          },
-        })
+					view_options = {
+						show_hidden = true,
+					},
+				})
 			end,
 			keys = {
 				{ "-", "<Cmd>Oil<CR>", desc = "Browse files from here" },
@@ -103,15 +103,17 @@ require("lazy").setup({
 		},
 
 		-- Telescope (for references, symbols, etc.)
-		{ "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim" },
-      config = function()
-        require("telescope").setup({
-          defaults = {
-            file_ignore_patterns = { "%.cache/" },
-          },
-        })
-      end,
-    },
+		{
+			"nvim-telescope/telescope.nvim",
+			dependencies = { "nvim-lua/plenary.nvim" },
+			config = function()
+				require("telescope").setup({
+					defaults = {
+						file_ignore_patterns = { "%.cache/" },
+					},
+				})
+			end,
+		},
 
 		--lsp
 		{ "mason-org/mason.nvim", tag = "v1.11.0", pin = true },
@@ -120,21 +122,20 @@ require("lazy").setup({
 		{ "hrsh7th/cmp-nvim-lsp" },
 		{ "hrsh7th/nvim-cmp" },
 
-    --vim.abolish (helps substitute with case-sensitivity)
-    {
-      "tpope/vim-abolish",
-    }
-
+		--vim.abolish (helps substitute with case-sensitivity)
+		{
+			"tpope/vim-abolish",
+		},
 	},
 	-- Configure any other settings here. See the documentation for more details.
 	-- colorscheme that will be used when installing plugins.
 	install = { colorscheme = { "habamax" } },
 	-- automatically check for plugin updates
 	checker = {
-    enabled = true,
-    notify = true,
-    frequency = 259200,
-  },
+		enabled = true,
+		notify = true,
+		frequency = 259200,
+	},
 })
 
 -- Reserve a space in the gutter
@@ -176,39 +177,37 @@ lspconfig_defaults.capabilities =
 -- })
 
 vim.api.nvim_create_autocmd("LspAttach", {
-  desc = "LSP actions",
-  callback = function(event)
-    local opts = { buffer = event.buf }
+	desc = "LSP actions",
+	callback = function(event)
+		local opts = { buffer = event.buf }
 
-    local tb = require("telescope.builtin")
+		local tb = require("telescope.builtin")
 
-    -- Hover / signature
-    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-    vim.keymap.set("n", "gs", vim.lsp.buf.signature_help, opts)
+		-- Hover / signature
+		vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+		vim.keymap.set("n", "gs", vim.lsp.buf.signature_help, opts)
 
-    -- Navigation (Telescope)
-    vim.keymap.set("n", "gd", tb.lsp_definitions, opts)
-    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-    vim.keymap.set("n", "gi", tb.lsp_implementations, opts)
-    vim.keymap.set("n", "go", tb.lsp_type_definitions, opts)
+		-- Navigation (Telescope)
+		vim.keymap.set("n", "gd", tb.lsp_definitions, opts)
+		vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+		vim.keymap.set("n", "gi", tb.lsp_implementations, opts)
+		vim.keymap.set("n", "go", tb.lsp_type_definitions, opts)
 
-    -- References (force picker always)
-    vim.keymap.set("n", "gr", function()
-      tb.lsp_references({ jump_type = "never" })
-    end, opts)
+		-- References (force picker always)
+		vim.keymap.set("n", "gr", function()
+			tb.lsp_references({ jump_type = "never" })
+		end, opts)
 
-    -- Refactoring
-    vim.keymap.set("n", "<F2>", vim.lsp.buf.rename, opts)
-    vim.keymap.set("n", "<F4>", vim.lsp.buf.code_action, opts)
+		-- Refactoring
+		vim.keymap.set("n", "<F2>", vim.lsp.buf.rename, opts)
+		vim.keymap.set("n", "<F4>", vim.lsp.buf.code_action, opts)
 
-    -- Formatting
-    vim.keymap.set({ "n", "x" }, "<F3>", function()
-      vim.lsp.buf.format({ async = true })
-    end, opts)
-  end,
+		-- Formatting
+		vim.keymap.set({ "n", "x" }, "<F3>", function()
+			vim.lsp.buf.format({ async = true })
+		end, opts)
+	end,
 })
-
-
 
 require("mason").setup({})
 require("mason-lspconfig").setup({
