@@ -50,7 +50,11 @@ require("lazy").setup({
 		{
 			"https://github.com/stevearc/oil.nvim",
 			config = function()
-				require("oil").setup()
+				require("oil").setup({
+          view_options = {
+            show_hidden = true,
+          },
+        })
 			end,
 			keys = {
 				{ "-", "<Cmd>Oil<CR>", desc = "Browse files from here" },
@@ -99,7 +103,15 @@ require("lazy").setup({
 		},
 
 		-- Telescope (for references, symbols, etc.)
-		{ "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim" } },
+		{ "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim" },
+      config = function()
+        require("telescope").setup({
+          defaults = {
+            file_ignore_patterns = { "%.cache/" },
+          },
+        })
+      end,
+    },
 
 		--lsp
 		{ "mason-org/mason.nvim", tag = "v1.11.0", pin = true },
@@ -107,12 +119,22 @@ require("lazy").setup({
 		{ "neovim/nvim-lspconfig", tag = "v1.8.0", pin = true },
 		{ "hrsh7th/cmp-nvim-lsp" },
 		{ "hrsh7th/nvim-cmp" },
+
+    --vim.abolish (helps substitute with case-sensitivity)
+    {
+      "tpope/vim-abolish",
+    }
+
 	},
 	-- Configure any other settings here. See the documentation for more details.
 	-- colorscheme that will be used when installing plugins.
 	install = { colorscheme = { "habamax" } },
 	-- automatically check for plugin updates
-	checker = { enabled = true },
+	checker = {
+    enabled = true,
+    notify = true,
+    frequency = 259200,
+  },
 })
 
 -- Reserve a space in the gutter
@@ -125,25 +147,68 @@ local lspconfig_defaults = require("lspconfig").util.default_config
 lspconfig_defaults.capabilities =
 	vim.tbl_deep_extend("force", lspconfig_defaults.capabilities, require("cmp_nvim_lsp").default_capabilities())
 
--- This is where you enable features that only work
--- if there is a language server active in the file
-vim.api.nvim_create_autocmd("LspAttach", {
-	desc = "LSP actions",
-	callback = function(event)
-		local opts = { buffer = event.buf }
+-- -- This is where you enable features that only work
+-- -- if there is a language server active in the file
+-- vim.api.nvim_create_autocmd("LspAttach", {
+-- 	desc = "LSP actions",
+-- 	callback = function(event)
+-- 		local opts = { buffer = event.buf }
+--
+-- 		vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>", opts)
+-- 		vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", opts)
+-- 		vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<cr>", opts)
+-- 		vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", opts)
+-- 		vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<cr>", opts)
+-- 		-- vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>", opts)
+-- 		vim.keymap.set("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<cr>", opts)
+-- 		vim.keymap.set("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<cr>", opts)
+-- 		vim.keymap.set({ "n", "x" }, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<cr>", opts)
+-- 		vim.keymap.set("n", "<F4>", "<cmd>lua vim.lsp.buf.code_action()<cr>", opts)
+--
+--     -- custom function to use telescope for jumping to references
+--     vim.keymap.set("n", "gr", function()
+--           require("telescope.builtin").lsp_references( {
+--             jump_type = "never",
+--           })
+--         end, opts)
+--
+-- 	end,
+-- })
 
-		vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>", opts)
-		vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", opts)
-		vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<cr>", opts)
-		vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", opts)
-		vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<cr>", opts)
-		vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>", opts)
-		vim.keymap.set("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<cr>", opts)
-		vim.keymap.set("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<cr>", opts)
-		vim.keymap.set({ "n", "x" }, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<cr>", opts)
-		vim.keymap.set("n", "<F4>", "<cmd>lua vim.lsp.buf.code_action()<cr>", opts)
-	end,
+vim.api.nvim_create_autocmd("LspAttach", {
+  desc = "LSP actions",
+  callback = function(event)
+    local opts = { buffer = event.buf }
+
+    local tb = require("telescope.builtin")
+
+    -- Hover / signature
+    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+    vim.keymap.set("n", "gs", vim.lsp.buf.signature_help, opts)
+
+    -- Navigation (Telescope)
+    vim.keymap.set("n", "gd", tb.lsp_definitions, opts)
+    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+    vim.keymap.set("n", "gi", tb.lsp_implementations, opts)
+    vim.keymap.set("n", "go", tb.lsp_type_definitions, opts)
+
+    -- References (force picker always)
+    vim.keymap.set("n", "gr", function()
+      tb.lsp_references({ jump_type = "never" })
+    end, opts)
+
+    -- Refactoring
+    vim.keymap.set("n", "<F2>", vim.lsp.buf.rename, opts)
+    vim.keymap.set("n", "<F4>", vim.lsp.buf.code_action, opts)
+
+    -- Formatting
+    vim.keymap.set({ "n", "x" }, "<F3>", function()
+      vim.lsp.buf.format({ async = true })
+    end, opts)
+  end,
 })
+
+
 
 require("mason").setup({})
 require("mason-lspconfig").setup({
