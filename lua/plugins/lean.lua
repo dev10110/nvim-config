@@ -11,8 +11,13 @@ return {
     -- 'tomtom/tcomment_vim',           -- for commenting
   },
 
-  ---@type lean.Config
-  opts = { -- see the manual for full configuration options
-    mappings = true,
-  }
+  -- lean.nvim no longer needs `setup()`; it activates itself on Lean files.
+  -- Configuration goes in `vim.g.lean_config`, which must be set before the
+  -- plugin loads -- hence `init` rather than `opts`/`config`.
+  init = function()
+    ---@type lean.Config
+    vim.g.lean_config = {
+      mappings = true,
+    }
+  end,
 }
